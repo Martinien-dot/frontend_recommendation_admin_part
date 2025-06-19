@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import axios from "@/lib/api";
 
 type Review = {
   user_id: number;
@@ -22,18 +21,30 @@ export default function ReviewsPage() {
     fetchReviews();
   }, []);
 
-  const fetchReviews = () => {
-    axios.get("/admin/reviews") // Ce endpoint doit être ajouté dans ton Flask
-      .then((res) => setReviews(res.data.reviews))
-      .catch(console.error);
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/reviews"); // à adapter
+      if (!res.ok) throw new Error("Erreur lors de la récupération des avis");
+      const data = await res.json();
+      setReviews(data.reviews);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleDelete = (movie_id: number, user_id: number) => {
-    axios.delete(`/reviews/${movie_id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
-      .then(fetchReviews)
-      .catch(console.error);
+  const handleDelete = async (movie_id: number, user_id: number) => {
+    try {
+      const res = await fetch(`http://localhost:5000/reviews/${movie_id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      });
+      if (!res.ok) throw new Error("Erreur lors de la suppression de l'avis");
+      fetchReviews();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -58,7 +69,11 @@ export default function ReviewsPage() {
                 <TableCell>{review.rating}</TableCell>
                 <TableCell>{review.review_text}</TableCell>
                 <TableCell>
-                  <Button variant="destructive" size="icon" onClick={() => handleDelete(review.movie_id, review.user_id)}>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => handleDelete(review.movie_id, review.user_id)}
+                  >
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </TableCell>

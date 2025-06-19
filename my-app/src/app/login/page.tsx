@@ -19,7 +19,7 @@ export default function LoginPage() {
       const res = await axios.post("/auth/login", { email, password });
       const token = res.data.access_token;
       localStorage.setItem("token", token);
-      router.push("/dashboard");
+      router.push("/");
     } catch (err) {
       setError("Identifiants invalides");
     }

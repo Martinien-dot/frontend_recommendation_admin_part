@@ -5,10 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import axios from "@/lib/api";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<{ total_movies: number; total_reviews: number; avg_rating: number } | null>(null);
+  const [stats, setStats] = useState<{ total_movies: number; total_reviews: number; avg_rating: number, total_ratings:number } | null>(null);
 
   useEffect(() => {
-    axios.get("/admin/stats").then((res) => setStats(res.data)).catch(console.error);
+    axios.get("/recommendations/admin/stats").then((res) => setStats(res.data)).catch(console.error);
   }, []);
 
   return (
